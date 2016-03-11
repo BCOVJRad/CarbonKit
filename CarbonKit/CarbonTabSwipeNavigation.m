@@ -52,7 +52,7 @@
 
 @implementation CarbonTabSwipeNavigation
 
-- (instancetype)createWithRootViewController:(UIViewController *)viewController
+- (instancetype)initWithRootViewController:(UIViewController *)viewController
 				    tabNames:(NSArray *)names
 				   tintColor:(UIColor *)tintColor
 				    delegate:(id)delegate {
@@ -72,7 +72,7 @@
 	pageController.dataSource = self;
 	
 	// delegate scrollview
-	for (UIView *v in pageController.view.subviews) {
+	for (id v in pageController.view.subviews) {
 		if ([v isKindOfClass:[UIScrollView class]]) {
 			((UIScrollView *)v).delegate = self;
 		}
@@ -381,9 +381,11 @@
 	[super viewDidAppear:animated];
 	[self fixOffset];
 	
-	CGRect rect = indicator.frame;
-	rect.size.width = ((UIView*)tabs[selectedIndex]).frame.size.width;
-	indicator.frame = rect;
+    if (selectedIndex < tabs.count) {
+        CGRect rect = indicator.frame;
+        rect.size.width = ((UIView*)tabs[selectedIndex]).frame.size.width;
+        indicator.frame = rect;
+    }
 }
 
 - (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation {
@@ -409,7 +411,10 @@
 }
 
 - (void)fixOffset {
-	CGRect selectedTabRect = ((UIView*)tabs[selectedIndex]).frame;
+    if (selectedIndex >= tabs.count) return;
+    
+    UIView* tabView = (UIView*)tabs[selectedIndex];
+	CGRect selectedTabRect = tabView.frame;
 	CGFloat indicatorMaxOriginX = tabScrollView.frame.size.width / 2 - selectedTabRect.size.width / 2;
 	
 	CGFloat offsetX = selectedTabRect.origin.x-indicatorMaxOriginX;
